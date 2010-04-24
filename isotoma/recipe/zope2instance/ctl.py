@@ -356,6 +356,14 @@ def main(args=None):
         c.do_status()
         c.cmdloop()
 
+    # Ideally we would return the exit code and let our caller deal with the exit code
+    # return  c._exitstatus
+
+    # but zc.buildout doesnt let ./bin/instance set an exit code so lets just exit here
+    # Also, if a run causes an exit code of 256, we get 0 when this process dies so force
+    # to 1 or 0
+    sys.exit(c._exitstatus != 0)
+
 
 class NoShellZopeCmd(AdjustedZopeCmd):
 
