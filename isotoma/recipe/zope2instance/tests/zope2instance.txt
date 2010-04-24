@@ -1,0 +1,1082 @@
+==========================
+plone.recipe.zope2instance
+==========================
+
+
+This is the doctest for plone.recipe.zope2instance. It ensures the template
+works fine. It is based on zc.buildout testing module::
+
+    >>> from zc.buildout.testing import *
+    >>> from os.path import join
+    >>> import sys, os
+
+Let's create a minimum buildout that uses the current
+plone.recipe.zope2instance::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    ...
+    Generated script '...instance'.
+
+We should have a zope instance, with a basic zope.conf::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    instancehome $INSTANCEHOME
+    %define CLIENTHOME /sample-buildout/var/instance
+    clienthome $CLIENTHOME
+    <BLANKLINE>
+    <BLANKLINE>
+    debug-mode off
+    security-policy-implementation C
+    verbose-security off
+    default-zpublisher-encoding utf-8
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <eventlog>
+      level INFO
+      <logfile>
+        path /sample-buildout/var/log/instance.log
+        level INFO
+      </logfile>
+    </eventlog>
+    <BLANKLINE>
+    <logger access>
+      level WARN
+      <logfile>
+        path /sample-buildout/var/log/instance-Z2.log
+        format %(message)s
+      </logfile>
+    </logger>
+    <BLANKLINE>
+    <http-server>
+      # valid keys are "address" and "force-connection-close"
+      address 8080
+      # force-connection-close on
+      # You can also use the WSGI interface between ZServer and ZPublisher:
+      # use-wsgi on
+    <BLANKLINE>
+    </http-server>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <zodb_db main>
+        # Main database
+        cache-size 5000
+    # FileStorage database
+        <filestorage>
+          path /sample-buildout/var/filestorage/Data.fs
+        </filestorage>
+        mount-point /
+    </zodb_db>
+    <BLANKLINE>
+    <zodb_db temporary>
+        # Temporary storage database (for sessions)
+        <temporarystorage>
+          name temporary storage for sessioning
+        </temporarystorage>
+        mount-point /temp_folder
+        container-class Products.TemporaryFolder.TemporaryContainer
+    </zodb_db>
+    <BLANKLINE>
+    pid-filename /sample-buildout/var/instance.pid
+    lock-filename /sample-buildout/var/instance.lock
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+
+FTP and WebDAV
+==============
+
+Let's start off by adding an FTP address::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ... user = me
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... ftp-address = 8021
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+Our FTP server should be set up now::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <ftp-server>
+      # valid key is "address"
+      address 8021
+    </ftp-server>
+    ...
+
+Next we will add a WebDAV server::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ... user = me
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... webdav-address = 1980
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+Our WebDAV server should be set up now::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <webdav-source-server>
+      # valid keys are "address" and "force-connection-close"
+      address 1980
+      force-connection-close off
+    </webdav-source-server>
+    ...
+
+Next we will add a WebDAV server with force-connection-close on::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ... user = me
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... webdav-address = 1980
+    ... webdav-force-connection-close = on
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+Our WebDAV server should be set up now::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <webdav-source-server>
+      # valid keys are "address" and "force-connection-close"
+      address 1980
+      force-connection-close on
+    </webdav-source-server>
+    ...
+
+DemoStorage
+===========
+
+To have a DemoStorage configuration, you can use demo-storage::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... zodb-cache-size-bytes = 1000000
+    ...
+    ... file-storage = newfs/Data.fs
+    ... demo-storage = on
+    ...
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+We should have a zope instance, with a basic zope.conf::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <zodb_db main>
+        # Main database
+        cache-size 5000
+        cache-size-bytes 1000000
+        # Demostorage
+        <demostorage>
+          # FileStorage database
+        <filestorage>
+          path /sample-buildout/var/newfs/Data.fs
+        </filestorage>
+        </demostorage>
+        mount-point /
+    </zodb_db>
+    ...
+    <BLANKLINE>
+
+Verify that demostorage can be disable::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... zodb-cache-size-bytes = 1000000
+    ...
+    ... file-storage = newfs/Data.fs
+    ... demo-storage = off
+    ...
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+We should have a zope instance, with a basic zope.conf without demostorage::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <zodb_db main>
+        # Main database
+        cache-size 5000
+        cache-size-bytes 1000000
+        # FileStorage database
+        <filestorage>
+          path /sample-buildout/var/newfs/Data.fs
+        </filestorage>
+        mount-point /
+    </zodb_db>
+    ...
+    <BLANKLINE>
+
+BlobStorage
+===========
+
+To have a BlobStorage configuration, you can use blob-storage::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... zodb-cache-size-bytes = 1000000
+    ...
+    ... blob-storage = ${buildout:directory}/var/blob
+    ...
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+We should have a zope instance, with a basic zope.conf::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <zodb_db main>
+        # Main database
+        cache-size 5000
+        cache-size-bytes 1000000
+        # Blob-enabled FileStorage database
+        <blobstorage>
+          blob-dir /sample-buildout/var/blob
+          <filestorage>
+            path /sample-buildout/var/filestorage/Data.fs
+          </filestorage>
+        </blobstorage>
+        mount-point /
+    </zodb_db>
+    ...
+    <BLANKLINE>
+
+BlobStorage doesn't support demostorage, let test this::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... zodb-cache-size-bytes = 1000000
+    ...
+    ... blob-storage = ${buildout:directory}/var/blob
+    ... demo-storage = on
+    ...
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+    While:
+      Installing instance.
+    <BLANKLINE>
+    ...
+    ValueError: Both blob and demo storage cannot be used at the same time.
+
+RelStorage
+==========
+
+To have a RelStorage configuration, you can use rel-storage::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... zodb-cache-size-bytes = 1000000
+    ...
+    ... rel-storage =
+    ...   type postgresql
+    ...   dbname zodb
+    ...   user tarek
+    ...   host example.com
+    ...   password secret space
+    ...   keep-history false
+    ...
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Installing instance.
+
+We should have a zope instance, with a basic zope.conf::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <zodb_db main>
+        # Main database
+        cache-size 5000
+        cache-size-bytes 1000000
+    %import relstorage
+        <relstorage>
+            keep-history false
+            <postgresql>
+                dsn dbname='zodb' user='tarek' host='example.com' password='secret space'
+            </postgresql>
+        </relstorage>
+        mount-point /
+    </zodb_db>
+    ...
+    <BLANKLINE>
+
+ZEO storage
+===========
+If you want to connect to a zeo server you specify some additional properties
+for the plone.recipe.zope2instance recipe.
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... zeo-client = yes
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    ...
+
+We should have a zope instance, with a basic zope.conf::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <zodb_db main>
+        ...
+        <zeoclient>
+            server 8100
+            storage 1
+            name zeostorage
+            var /sample-buildout/parts/instance/var
+            cache-size 30MB
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+        </zeoclient>
+        ...
+    </zodb_db>
+    ...
+    <BLANKLINE>
+
+If zope-client-client is specified it should get into that section as well.
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... zeo-client = yes
+    ... zeo-client-client = persistentcache88
+    ... min-disconnect-poll = 10
+    ... max-disconnect-poll = 20
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    ...
+
+We should have a zope instance, with a basic zope.conf::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <zodb_db main>
+        ...
+        <zeoclient>
+            server 8100
+            storage 1
+            name zeostorage
+            var /sample-buildout/parts/instance/var
+            cache-size 30MB
+    <BLANKLINE>
+            client persistentcache88
+            min-disconnect-poll 10
+            max-disconnect-poll 20
+        </zeoclient>
+        ...
+    </zodb_db>
+    ...
+    <BLANKLINE>
+
+Verify that demo-storage is correctly applied
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... zeo-client = yes
+    ... demo-storage = yes
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    ...
+
+We should have a zope instance, with a basic zope.conf::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <zodb_db main>
+        ...
+        # Demostorage
+        <demostorage>
+        # ZEOStorage database
+        <zeoclient>
+            server 8100
+            storage 1
+            name zeostorage
+            var /sample-buildout/parts/instance/var
+            cache-size 30MB
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+        </zeoclient>
+        </demostorage>
+        ...
+    </zodb_db>
+    ...
+    <BLANKLINE>
+
+Verify that demo-storage is correctly applied
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... zeo-client = yes
+    ... blob-storage = ${buildout:directory}/var/blob
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    ...
+
+We should have a zope instance, with a basic zope.conf::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <zodb_db main>
+        ...
+    # Blob-enabled ZEOStorage database
+        <zeoclient>
+          blob-dir /sample-buildout/var/blob
+          shared-blob-dir no
+          server 8100
+          storage 1
+          name zeostorage
+          var /sample-buildout/parts/instance/var
+          cache-size 30MB
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+        </zeoclient>
+        ...
+    </zodb_db>
+    ...
+    <BLANKLINE>
+
+Custom Event log
+================
+
+`event-log-custom` is a new option that allows you to create
+a custom event log section. For example, let's say you want
+to use `rotatezlogs`::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ...
+    ... event-log-custom =
+    ...     %%import iw.rotatezlogs
+    ...     <rotatelogfile>
+    ...         path %(sample_buildout)s/var/log/event.log
+    ...         max-bytes 1MB
+    ...         backup-count 5
+    ...     </rotatelogfile>
+    ...
+    ... event-log-level = info
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+We should have a zope instance, with the custom event log::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <eventlog>
+      level info
+      %import iw.rotatezlogs
+      <rotatelogfile>
+        path /sample-buildout/var/log/event.log
+        max-bytes 1MB
+        backup-count 5
+      </rotatelogfile>
+    </eventlog>
+    ...
+    <BLANKLINE>
+
+Custom access log
+=================
+
+`access-log-custom` is a new option that allows you to create
+a custom event log section. For example, let's say you want
+to use `rotatezlogs`::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ...
+    ... access-log-custom =
+    ...     %%import iw.rotatezlogs
+    ...     <rotatelogfile>
+    ...         path %(sample_buildout)s/var/log/event.log
+    ...         max-bytes 1MB
+    ...         backup-count 5
+    ...     </rotatelogfile>
+    ...
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+We should have a zope instance, with the custom event log::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <logger access>
+      level WARN
+      %import iw.rotatezlogs
+      <rotatelogfile>
+        path /sample-buildout/var/log/event.log
+        max-bytes 1MB
+        backup-count 5
+      </rotatelogfile>
+    </logger>
+    ...
+    <BLANKLINE>
+
+Custom site.zcml file
+=====================
+
+`site-zcml` is a new option that allows you to create a custom site.zcml file.
+When this option is used the `zcml` option is ignored. Let's try it::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... # the zcml option will be ignored when a site-zcml option is given
+    ... zcml =
+    ...       test.example
+    ...
+    ... site-zcml =
+    ...       <configure xmlns="http://namespaces.zope.org/zope"
+    ...                  xmlns:five="http://namespaces.zope.org/five">
+    ...           <include package="Products.Five" />
+    ...           <meta:redefinePermission from="zope2.Public" to="zope.Public" />
+    ...           <include package="test.example" />
+    ...       </configure>
+    ...
+    ... ''' % globals())
+
+Let's run the buildout::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+Now let's check that we have a zope instance, with the custom site.zcml::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'site.zcml')).read()
+    <configure xmlns="http://namespaces.zope.org/zope"
+               xmlns:five="http://namespaces.zope.org/five">
+        <include package="Products.Five" />
+        <meta:redefinePermission from="zope2.Public" to="zope.Public" />
+        <include package="test.example" />
+    </configure>
+    <BLANKLINE>
+
+
+Environment Variables
+=====================
+
+We can specify environment variables for Zope.  Sometimes it is
+useful to set the TZ variable if our instance will be moving
+between several servers::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ... user = me
+    ... zope2-location = %(zope2_location)s
+    ...
+    ... environment-vars = TZ US/Eastern
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+Our environment variables should be set now::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> print open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    %define INSTANCEHOME /sample-buildout/parts/instance
+    ...
+    <environment>
+      TZ US/Eastern
+    </environment>
+    ...
+
+Now let's add several environment variables::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ... user = me
+    ... zope2-location = %(zope2_location)s
+    ...
+    ... environment-vars =
+    ...     TZ US/Eastern
+    ...     TMP /var/tmp
+    ...     DISABLE_PTS True
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+Our environment variables should be set now::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> zc = open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    >>> import re
+    >>> env_vars = re.compile(r"<environment>\n\s*(?P<vars>.*)\n</environment>", re.M | re.S)
+    >>> re.search(env_vars, zc).group('vars')
+    'TZ US/Eastern\nTMP /var/tmp\nDISABLE_PTS True'
+
+Several all on one line::
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ... user = me
+    ... zope2-location = %(zope2_location)s
+    ...
+    ... environment-vars = TZ US/Eastern TMP /var/tmp DISABLE_PTS True
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+Our environment variables should be set now::
+
+    >>> instance = os.path.join(sample_buildout, 'parts', 'instance')
+    >>> zc = open(os.path.join(instance, 'etc', 'zope.conf')).read()
+    >>> re.search(env_vars, zc).group('vars')
+    'TZ US/Eastern\nTMP /var/tmp\nDISABLE_PTS True'
+
+
+Edge Cases
+==========
+
+Some Linux distributions of Zope2 don't have the windows scripts.
+Let's run a minimal buildout without them to make sure
+we don't error::
+
+    >>> zope2_location = "%s-nowin" % zope2_location
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    Uninstalling instance.
+    Installing instance.
+
+Relative paths in scripts
+=========================
+
+The recipe supports the generation of scripts with relative paths.
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... relative-paths = true
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ...
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... ''' % globals())
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    ...
+
+Our generated script now has a reference to the relative path.
+
+    >>> open(join('bin', 'instance')).read()
+    '...base = ...__file__...'
+
+Custom Zope Conf
+=================
+
+`zope-conf` is an option that allows you to use a specific Zope config file.
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... zope-conf = /some/path/my.conf
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    ...
+
+We should have a zope instance script with the custom config file::
+
+    >>> open(join('bin', 'instance')).read()
+    '...plone.recipe.zope2instance.ctl.main(...["-C", \'/some/path/my.conf\']...'
+
+No shell launcher
+=================
+
+The default setup starts Zope via a Python script which invokes a
+shell script which in turn runs another Python script. If the option
+is given to directly launch the server these steps will be skipped.
+
+    >>> write('buildout.cfg',
+    ... '''
+    ... [buildout]
+    ... parts = instance
+    ... index = http://pypi.python.org/simple
+    ... develop =
+    ...     %(recipe_location)s
+    ...
+    ... [instance]
+    ... recipe = plone.recipe.zope2instance
+    ... zope2-location = %(zope2_location)s
+    ... user = me
+    ... no-shell = true
+    ... ''' % globals())
+
+Let's run it::
+
+    >>> print system(join('bin', 'buildout')),
+    Develop: '...'
+    ...
+
+We should have a zope instance script with the custom config file::
+
+    >>> open(join('bin', 'instance')).read()
+    '...plone.recipe.zope2instance.ctl.noshell...'

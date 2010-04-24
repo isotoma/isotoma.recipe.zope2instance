@@ -1,0 +1,527 @@
+Changelog
+=========
+
+3.6 (2009-10-11)
+----------------
+
+- Expanded the RelStorage options, including keep-history and replica-conf.
+  [hathawsh]
+
+3.5 (2009-09-05)
+----------------
+
+- Added support for relative-paths in the script generation.
+  [jvloothuis]
+
+- When `zope-conf` is set the config file will be directly loaded from that
+  location (it previously created a stub zope.conf which included it).
+  [jvloothuis]
+
+- Added an option to avoid using the normal shell scripts for starting Zope.
+  This makes it possible to avoid the hard-coded paths in these scripts.
+  [jvloothuis]
+
+- Allow the blob-dir parameter in RelStorage configurations.
+  [hathawsh]
+
+3.4 (2009-08-12)
+----------------
+
+- Support in line with fix for LP#407916.
+  [gotcha]
+
+- Changed the 'mkzopeinstance' call respect the 'bin-directory' option.
+  [esteele]
+
+- Removed the `zope2-egg` option and the simple startup script from the recipe.
+  We assume that we have an egg distribution if `zope2-location` is not set.
+  [hannosch]
+
+- Merged the `davisagli-eggified-zope` branch into the trunk.
+  [hannosch]
+
+- Add a new icp-address option. This is useful for environments where
+  e.g. squid is used to front a Zope/ZEO cluster. See
+  http://www.zope.org/Members/htrd/icp/intro
+  [neaj]
+
+3.3 - 2009-07-07
+----------------
+
+- Add handling for RelStorage options.
+  [elro]
+
+- Reinstall scripts on update which appears to be good recipe practice.
+  [stefan]
+
+3.2 - 2009-04-02
+----------------
+
+- Add a new zcml-additional option. This is useful for environments where
+  non-code configuration (such as database connection details for
+  ore.contentmirror) are managed through zcml.
+  [wichert]
+
+3.1 (2009-03-15)
+----------------
+
+- The 2.9 fix for spaces caused a problem using debug (bug 337740)
+  due to the way do_debug passed the "-i" command line argument
+  to get_startup_cmd.
+  [smcmahon]
+
+3.0 (2009-02-27)
+----------------
+
+- The 2.9 fix for the instance run command was itself broken and
+  would fail on anything except Windows.
+  [smcmahon]
+
+- Changed the `zope2-egg` option to omit any kind of instance creation for
+  now. The mkzopeinstance script relies on being able to import Zope2, which
+  is not available when buildout runs.
+  [hannosch]
+
+2.9 (2009-02-26)
+----------------
+
+- The instance run command was vulnerable to spaces in pathnames, and
+  needed some extra quoting for win32.
+  [smcmahon]
+
+- Check for existence of windows scripts before patching them. Some
+  Linux distributions of Zope2 don't have these files.
+  [smcmahon]
+
+- Delegate commands to ``win32serviceutil.HandleCommand()`` on win32,
+  instead of starting the interpreter through ``os.system()``. Should
+  shave off a couple seconds from overall time taken to process those
+  commands.
+  [sidnei]
+
+- Compute ``serviceClassString`` ourselves, since we are calling this
+  as a module and not directly as ``__main__``, otherwise the service
+  won't be installed correctly.
+  [sidnei]
+
+2.8 (2008-12-05)
+----------------
+
+- Add more tests for ZEO client with blob and demo storages.
+  Still no test on 'shared-blob-dir' option.
+  [encolpe]
+
+- Always use 'r'-style strings for passing script and configuration
+  filenames (eg: on 'instance run <script>').
+  [sidnei]
+
+- Add a demo-storage option and tests.
+  [encolpe]
+
+- Add a first test for blob-storage.
+  [encolpe]
+
+2.7 (2008-11-18)
+----------------
+
+- Added a `zope2-egg` option and an accompanying simple startup script for
+  use with an eggified Zope2.
+  [hannosch]
+
+- Do not fail with a Zope2 egg checkout.
+  [hannosch]
+
+- Normalize first argument to os.spawnl. It can get really upset
+  otherwise (dll import failure on a relocatable python install).
+  [sidnei]
+
+- Use same quoting as on 'do_foreground' for servicescript
+  usage. Fixes problems with installing the buildout-based Plone
+  installer for Windows on a path with spaces.
+  [sidnei]
+
+- Ensure that do_foreground leaves self.options.program arguments as it
+  found them.  This makes it possible to use 'fg' and 'debug' more than
+  once within the same control session.
+  [klm]
+
+2.6 (2008-10-22)
+----------------
+
+- Normalize, absolutize and lowercase-ize (is that a word?) paths
+  before comparing, to avoid problems with relative filenames and
+  different drive letter case on Windows.
+  [sidnei]
+
+2.5 (2008-09-22)
+----------------
+
+- Add support for zodb-cache-size-bytes from ZODB 3.9 and later.
+  [wichert]
+
+
+2.4 (2008-07-15)
+----------------
+
+- Introduced zope.conf variables "INSTANCEHOME" and "CLIENTHOME".
+  Its very very helpful in cluster setups with zope-conf-additional
+  sections (buildout lacks to reference the current section).
+  [jensens]
+
+- Made test command compatible with zope.testing 3.6.
+  [hannosch]
+
+2.3.1 (2008-06-10)
+------------------
+
+- No code changes. Released to fix the 2.3 release which put .egg files in
+  the wild.
+  [hannosch]
+
+2.3 (2008-06-06)
+----------------
+
+- Need to actually pass in deprecation-warnings, otherwise we get a
+  KeyError.
+  [sidnei]
+
+- Fix another place where the directory name needed to be escaped to
+  avoid problems with spaces.
+  [sidnei]
+
+- Don't try to delete location if it does not exist.
+  [sidnei]
+
+2.2 (2008-06-06)
+----------------
+
+- Added `deprecation-warnings` option that allows turning the option
+  to disable deprecation warnings on or off. You can provide the value
+  `error` to it, and every deprecation warning will be turned into an
+  exception.
+  [sidnei]
+
+- Fix copy and paste error that caused a failure on changing
+  runzope.bat to call servicewrapper.py.
+  [sidnei]
+
+- Escape 'executable' argument before passing it to os.spawnl, in
+  order to make it work on Windows when the executable name has spaces
+  on it.
+  [sidnei]
+
+- Added `http-fast-listen` option. Use of this option requires Zope >= 2.11.
+  [stefan]
+
+2.1 (2008-06-05)
+----------------
+
+- Fixed a test problem on Windows, where explicit closing of files is required.
+  [hannosch]
+
+- Call `servicewrapper.py` from `runzope.bat` instead of setting
+  `PYTHONPATH` and calling `Zope2/Startup/run.py`. That way we set
+  sys.path from inside Python code and avoid exceeding the maximum
+  environment variable limit.
+  [sidnei]
+
+- Allow to use an alternative temporary storage, by specifying the new
+  `zodb-temporary-storage` option.
+  [jensens]
+
+- Added `environment-vars` option to set environment variables. Changed
+  the zope-conf-additional example code to something that isn't covered by
+  the recipe.
+  [claytron]
+
+2.0 (2008-05-29)
+----------------
+
+- Do not use system but exec when starting Zope. This makes it possible for
+  process management tools to properly manage Zope processes.
+  [wichert]
+
+- Added `site-zcml` option
+  Added tests
+  [mustapha]
+
+- Add support for ZEO authentication. Note that this does not work with any
+  released Zope or ZODB version at this moment. See
+  http://mail.zope.org/pipermail/zope/2005-October/161951.html for required
+  patches.
+  [wichert]
+
+- Added FTP and WebDAV options
+  [claytron]
+
+- Allow rel-storage to be an empty string, meaning 'do not use relstorage'.
+  This allows an extending buildout configuration to disable relstorage again.
+  [mj]
+
+1.9 (2008-04-15)
+----------------
+
+- Fix rel-storage parsing for options with spaces. Note that split() or
+  split(None) already strips the string.
+  [mj]
+
+1.8 (2008-04-05)
+----------------
+
+- Fixed a Win32 problem in which the presence of Python string escapes in the
+  path to zope.conf (e.g., d:\botest\parts\instance\etc\zope.conf would escape
+  the \b). This showed up when using the 'run', 'debug' or 'adduser' commands.
+  This fixes #211416.
+  [smcmahon]
+
+- Added `console` command to the instance script, which is equivalent to fg but
+  does not implicitly turn on debug mode but respects the zope.conf setting.
+  [hannosch]
+
+1.7 (2008-03-31)
+----------------
+
+- Added new client-home option and let it default to a subfolder of the
+  buildout-wide var folder with a subfolder of the name of the section.
+  [hannosch]
+
+- Added limited support for running tests under Zope <= 2.8.
+  [hannosch]
+
+1.6 (2008-03-27)
+----------------
+
+- Fixed runzope script generation for Zope 2.8.
+  [hannosch]
+
+- Cleaned up "./bin/instance test" option handling.
+  [stefan]
+
+- Removed generator expressions as these aren't supported in < py2.4, which is
+  used by zope 2.7/8.
+  [duffyd]
+
+1.5 (2008-02-29)
+----------------
+
+- Added `access-log-custom` option to be able to use another event logger
+  than the file one for the access logger.
+  [tarek]
+
+- Fix instance generation to work on Windows with blanks in the path name.
+  This closes #188023.
+  [hannosch, gotti]
+
+- Added 'zeo-client-client' option which results in 'client <value>' inside
+  <zeoclient>.
+  [timte, hannosch]
+
+- Made relstorage handling more generic, so it now supports any RelStorage
+  adapter, including Oracle (which was broken).
+  [mj]
+
+1.4 (2008-02-23)
+----------------
+
+- Fix typo in event log parameter name (from "z-log" to "z2-log"), to comply
+  with the documentation. This closes #190943.
+  [kdeldycke]
+
+- Create pid and lock file folders if they don't exist.
+  [kdeldycke]
+
+- Remove hard-coded log level and use the event_log_level parameter to set it
+  dynamically. This closes #190994.
+  [kdeldycke]
+
+- Added a test environment, using zc.buildout.testing, and a doctest that
+  tries the recipe.
+  [tarek]
+
+- Added an `event-log-custom` option
+  [tarek]
+
+- Added example for the zope-conf-additional option. This closes #185539.
+  [klm, hannosch]
+
+- Added `rel-storage` option to be able to wire Zope to RelStorage
+  (postgresql/oracle) instead of a FileStorage database.
+  [tarek]
+
+1.3
+---
+
+- For each entry in recipe-specified 'extra-paths' line, add a 'path' line
+  to the instance and Zope client zope.conf files.
+  [klm]
+
+1.2
+---
+
+- Added the boolean `shared-blob` option, defaulting to `no`. If all of
+  `zeo-client`, `blob-storage` and `shared-blob` options are set,
+  the instance will assume the blob directory set by `blob-storage` is shared
+  with the server instead of streaming 'blob' files through the ZEO connection.
+  [rochael]
+
+- Changed `ctl.do_foreground()` (which is invoked by the `fg` command
+  line argument) start Zope in debug mode to emulate the behavior of
+  `zopectl fg`. This required a little special WIN32 code to make
+  sure it would work in both `*nix` and Windows.
+  [smcmahon]
+
+- Added `var` option, which is used to configure the base directory for all
+  the things going into var.
+  [hannosch]
+
+- Added `zeo-var` option, which is used in the zeo storage snippets to
+  configure the zeo var folder.
+  [hannosch]
+
+- Merged rochael-blobsupport branch. Added support for ZODB 3.8 blob storage
+  configuration for ZEO clients. This references
+  https://bugs.launchpad.net/collective.buildout/+bug/179113.
+  [rochael, hannosch]
+
+- Added `zeo-client-name` option. Defaults to the name of the ZEO client.
+  [hannosch]
+
+1.1
+---
+
+- Small documentation update. Added link to the bugtracker.
+  [hannosch]
+
+- Changed default of zope.conf option 'default-zpublisher-encoding' to 'utf-8'
+  instead of Zope's default value of 'iso-8859-15'.
+
+- Have PID file's location default to '${buildout:directory}/var/${name}.pid'.
+  Keeping the PID file in $INSTANCE_HOME gives trouble when buildout rebuilds
+  the part.
+  [nouri, mustapha]
+
+1.0
+---
+
+- Increased 'zodb_cache_size' default value to 5000, which is more likely a
+  better default these days.
+  [hannosch]
+
+- Added support for 'extra-paths' as in 'zc.recipe.egg'; this is useful when
+  using regular python packages for which no eggs are available (yet), i.e.
+  with 'plone.recipe.distros'.
+  [witsch]
+
+- Added zeo-storage option (merge branch ree-add-zeo-storage-option).
+  [ree]
+
+- Avoid doubled entries to eggs specified in the buildout in 'sys.path':
+  the working set ('ws') gets passed again when installing the script
+  ('bin/instance'), but it is not also added to 'extra_paths'.
+  [witsch]
+
+- Patching 'PYTHONPATH' in the Zope startup skripts should insert all
+  additional paths (to eggs) __before__ 'SOFTWARE_HOME', because otherwise
+  (newer) egg versions of components from the standard Zope distribution
+  (i.e. stuff that lives in 'lib/python') cannot be used.
+  [witsch]
+
+- Changed the option to suppress deprecation warnings to "--nowarn" or
+  '--nowarning" to be consistent with "zopectl test".
+  [witsch]
+
+- Added option "-w" to allow the test runner to suppress deprecation warnings,
+  so it's easier to spot failing tests...
+  [witsch]
+
+- Updated import for Zope 2.7 (and below) compatibility.
+  [duffyd]
+
+- Merging -r51966:52659 claytron-zopeconfoptions branch to trunk.
+  [claytron]
+
+- Made the config snippet prettier while still getting the resulting
+  indentation right.
+  [witsch]
+
+0.9
+---
+
+- Added support for zodb 3.8's "<blobstorage>" directive.
+  [witsch]
+
+- Added a script name arg before callint zope.testing.testrunner.run.
+  zope.testing.testrunner:1772, get_options removes the first arg from
+  the list of arguments expecting a script name there. Was causing
+  "bin/instance test" to behave improperly.
+  [rossp]
+
+0.8
+---
+
+- Use bin if present falling back to utilities. This makes it possible to use
+  a Zope version installed from a tarball and not compiled inplace.
+  [rossp]
+
+0.7
+---
+
+- Found the problem with strange environment variables.
+  [hannosch]
+
+- Fixed documentation bug, the cache size is respected by non-zeo instance as
+  well.
+  [hannosch]
+
+0.6
+---
+
+- J1m actually read the docs ;)
+  [hannosch]
+
+- Attempt to fix the sometimes insane number of tests which are found by the
+  test runner.
+  [hannosch]
+
+0.5
+---
+
+- Added an option to set the effective-user.
+  [optilude]
+
+0.4
+---
+
+- Generate a bin/repozo script to perform backups using repozo.py (and
+  set up the appropriate pythonpath for this to work).
+  [optilude]
+
+- Document options properly, and add the ability to specify a zope.conf
+  file explicitly rather than having one generated from a template.
+  [optilude]
+
+0.3
+---
+
+- Finally found a way to provide the Zope Windows service with the right
+  environment. We need a new wrapper script, which sets up the PYTHONPATH.
+  [hannosch]
+
+- Make it possible to configure the name of the zopectl script using the
+  control-script option in the [instance] section.
+  [wichert]
+
+0.2
+---
+
+- Extend support for zcml slugs to include Zope 2.9.
+  [dunny]
+
+- Added support for making a ZEO-client.
+  [regebro]
+
+0.1
+---
+
+- Initial implementation.
+  [hannosch]
