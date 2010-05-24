@@ -1,6 +1,10 @@
 Introduction
 ============
 
+This is a temporary fork of plone.recipe.zope2instance that has slightly
+tweaked exit code handling. Unless you need this, we suggest using the
+upstream recipe.
+
 This recipe creates and configures a Zope 2 instance in parts. It also
 installs a control script, which is like zopectl, in the bin/ directory.
 The name of the control script is the the name of the part in buildout.
@@ -8,7 +12,7 @@ The name of the control script is the the name of the part in buildout.
 You can use it with a part like this::
 
   [instance]
-  recipe = plone.recipe.zope2instance
+  recipe = isotoma.recipe.zope2instance
   zope2-location = /path/to/zope2/install
   user = admin:admin
   http-address = 8080
@@ -258,8 +262,3 @@ no-shell
   used. In this case the recipe will directly start the Python
   process.
 
-Reporting bugs or asking questions
-----------------------------------
-
-We have a shared bugtracker and help desk on Launchpad:
-https://bugs.launchpad.net/collective.buildout/
