@@ -46,6 +46,7 @@ class Filestorage(object):
                     if zeo_address is None or zeo_address == part.get('zeo-address', 8100):
                         self.zope_parts.append(part_name)
                 
+    def install(self):
         # inject the extra sections into the correct zope-conf-additional or zeo-conf-additional variables.
         self.subparts = options.get('parts', '').split()
         for subpart in self.subparts:
@@ -54,8 +55,7 @@ class Filestorage(object):
             if self.zeo_part is not None:
                 self._inject_zeo_conf(self.zeo_part, subpart)
 
-    def install(self):
-        
+       
         for subpart in self.subparts:
             # create the directory for this filestorage
             location = self._subpart_option(subpart, 'location', default=os.path.join('var', 'filestorage', '%(fs_part_name)s', '%(fs_part_name)s.fs'))
