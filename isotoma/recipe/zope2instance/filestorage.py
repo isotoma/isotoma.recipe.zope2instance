@@ -46,9 +46,6 @@ class Filestorage(object):
                     if zeo_address is None or zeo_address == part.get('zeo-address', 8100):
                         self.zope_parts.append(part_name)
                 
-        # make sure this part is before any associated zeo/zope parts in the buildout parts list
-        self._validate_part_order()
-        
         # inject the extra sections into the correct zope-conf-additional or zeo-conf-additional variables.
         self.subparts = options.get('parts', '').split()
         for subpart in self.subparts:
@@ -89,25 +86,6 @@ class Filestorage(object):
     def update(self):
         """Updater"""
         pass
-        
-    def _validate_part_order(self):
-        """ Make sure this part is before any associated zeo/zope parts in the buildout parts list.
-        """
-        print self.buildout['buildout']['parts'].split()
-        injector_parts = [self.name]
-        target_parts = self.zope_parts[:]
-        if self.zeo_part is not None:
-            target_parts.append(self.zeo_part)
-        for part_name in self.buildout['buildout']['parts'].split():
-            if part_name in injector_parts:
-                injector_parts.remove(part_name)
-                continue
-            if part_name in target_parts:
-                if len(injector_parts) > 0:
-                    raise UserError, '[isotoma.recipe.zope2instance:filestorage] The "%s" part must be listed before the following parts in ${buildout:parts}: %s' % (self.name, ', '.join(target_parts))
-                target_parts.remove(part_name)
-        if len(target_parts) > 0:
-            raise UserError, '[isotoma.recipe.zope2instance:filestorage] The "%s" part expected but failed to find the following parts in ${buildout:parts}: %s' % (self.name, ', '.join(target_parts))
         
     def _inject_zope_conf(self, zope_part, subpart):
         zope_options = self.buildout[zope_part]
