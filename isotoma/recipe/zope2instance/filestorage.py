@@ -48,7 +48,7 @@ class Filestorage(object):
                 
     def install(self):
         # inject the extra sections into the correct zope-conf-additional or zeo-conf-additional variables.
-        self.subparts = options.get('parts', '').split()
+        self.subparts = self.options.get('parts', '').split()
         for subpart in self.subparts:
             for zope_part in self.zope_parts:
                 self._inject_zope_conf(zope_part, subpart)
