@@ -23,7 +23,7 @@ class Filestorage(object):
             if self.buildout.has_key(self.zeo_part):
                 zeo_address = self.buildout[self.zeo_part].get('zeo-address', 8100)
             else:
-                raise UserError, '[collective.recipe.filestorage] "%s" part specifies nonexistant zeo part "%s".' % (name, self.zeo_part)
+                raise UserError, '[isotoma.recipe.zope2instance:filestorage] "%s" part specifies nonexistant zeo part "%s".' % (name, self.zeo_part)
         else:
             for part_name in active_parts:
                 part = self.buildout._raw[part_name]
@@ -31,7 +31,7 @@ class Filestorage(object):
                     continue
                 elif part['recipe'] in ('plone.recipe.zope2zeoserver', 'plone.recipe.zeoserver'):
                     if self.zeo_part is not None:
-                        raise UserError, '[collective.recipe.filestorage] "%s" part found multiple zeoserver parts; please specify which one to use with the "zeo" option.' % name
+                        raise UserError, '[isotoma.recipe.zope2instance:filestorage] "%s" part found multiple zeoserver parts; please specify which one to use with the "zeo" option.' % name
                     self.zeo_part = part_name
                     zeo_address = part.get('zeo-address', 8100)
                 
@@ -104,10 +104,10 @@ class Filestorage(object):
                 continue
             if part_name in target_parts:
                 if len(injector_parts) > 0:
-                    raise UserError, '[collective.recipe.filestorage] The "%s" part must be listed before the following parts in ${buildout:parts}: %s' % (self.name, ', '.join(target_parts))
+                    raise UserError, '[isotoma.recipe.zope2instance:filestorage] The "%s" part must be listed before the following parts in ${buildout:parts}: %s' % (self.name, ', '.join(target_parts))
                 target_parts.remove(part_name)
         if len(target_parts) > 0:
-            raise UserError, '[collective.recipe.filestorage] The "%s" part expected but failed to find the following parts in ${buildout:parts}: %s' % (self.name, ', '.join(target_parts))
+            raise UserError, '[isotoma.recipe.zope2instance:filestorage] The "%s" part expected but failed to find the following parts in ${buildout:parts}: %s' % (self.name, ', '.join(target_parts))
         
     def _inject_zope_conf(self, zope_part, subpart):
         zope_options = self.buildout[zope_part]
